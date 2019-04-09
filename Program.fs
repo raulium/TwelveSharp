@@ -69,15 +69,27 @@ let main =
     let tst = isSorted t |> Array.ofSeq
     if tst.Length = 0 then printfn "it is sorted." else printfn "Counter examples: %A" tst
     0 // return an integer exit code
-  | [|"test"; n; heads; from|] ->
-    let t = rseq (System.Int32.Parse(n)) heads from
-    let max = t |> Seq.maxBy persistence
-    printfn "max persistence is %s of %i" max (persistence max)
+  | [|"test"; n;|] -> // heads; from|] ->
+    let heads = "23"
+    let from  = "6789"
+    let s = new System.Diagnostics.Stopwatch()
+    do s.Start()
+    let n = (System.Int32.Parse(n))
+    printfn "n is %i" n
+    let t = rseq n heads from
+    let max = t |> Seq.countBy persistence |> Seq.sortBy fst |> Array.ofSeq
+    s.Stop()
+    printfn "test the persistence spectriume is %s; time %ims" (max |> Seq.map (sprintf "%A") |> String.concat "; ")  s.ElapsedMilliseconds
     0
   | [|"ftest"; n|] ->
-    let t = fastseq (System.Int32.Parse(n))
-    let max = t |> Seq.maxBy persistence
-    printfn "max persistence is %s of %i" max (persistence max)
+    let s = new System.Diagnostics.Stopwatch()
+    do s.Start()
+    let n = (System.Int32.Parse(n))
+    printfn "n is %i" n
+    let t = fastseq n
+    let max = t |> Seq.countBy persistence |> Seq.sortBy fst |> Array.ofSeq
+    s.Stop()
+    printfn "ftest the persistence spectriume is %s; time %ims" (max |> Seq.map (sprintf "%A") |> String.concat "; ")  s.ElapsedMilliseconds
     0
   | _ ->
     eprintfn "usage : <n> <heads> <from>"
