@@ -45,6 +45,20 @@ let persistence x =
     //eprintfn "v: %A; t: %A; rem: %A" v t rem
   p
 
+let fastseq n =
+  seq{
+    let a = System.String('2',n)
+    let b = System.String('3',n)
+    let c = System.String('5',n)
+    let d = System.String('7',n)
+    for a' = n downto 0 do
+      for b' = n downto 0 do
+        for c' = n downto 0 do
+          for d' = n downto 0 do
+            let t = a.Substring(a') + b.Substring(b') + c.Substring(c') + d.Substring(d')
+            if t <> "" then yield t
+  }
+
 [<EntryPoint>]
 let main =
   function
@@ -57,6 +71,11 @@ let main =
     0 // return an integer exit code
   | [|"test"; n; heads; from|] ->
     let t = rseq (System.Int32.Parse(n)) heads from
+    let max = t |> Seq.maxBy persistence
+    printfn "max persistence is %s of %i" max (persistence max)
+    0
+  | [|"ftest"; n|] ->
+    let t = fastseq (System.Int32.Parse(n))
     let max = t |> Seq.maxBy persistence
     printfn "max persistence is %s of %i" max (persistence max)
     0
