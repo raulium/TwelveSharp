@@ -1,0 +1,10 @@
+E:\Code\hobby\raulium\TwelveSharp\bin\Debug\netcoreapp2.2\combos.deps.json
+E:\Code\hobby\raulium\TwelveSharp\bin\Debug\netcoreapp2.2\combos.runtimeconfig.json
+E:\Code\hobby\raulium\TwelveSharp\bin\Debug\netcoreapp2.2\combos.runtimeconfig.dev.json
+E:\Code\hobby\raulium\TwelveSharp\bin\Debug\netcoreapp2.2\combos.dll
+E:\Code\hobby\raulium\TwelveSharp\bin\Debug\netcoreapp2.2\combos.pdb
+E:\Code\hobby\raulium\TwelveSharp\obj\Debug\netcoreapp2.2\combos.fsprojAssemblyReference.cache
+E:\Code\hobby\raulium\TwelveSharp\obj\Debug\netcoreapp2.2\combos.AssemblyInfoInputs.cache
+E:\Code\hobby\raulium\TwelveSharp\obj\Debug\netcoreapp2.2\combos.AssemblyInfo.fs
+E:\Code\hobby\raulium\TwelveSharp\obj\Debug\netcoreapp2.2\combos.dll
+E:\Code\hobby\raulium\TwelveSharp\obj\Debug\netcoreapp2.2\combos.pdb
