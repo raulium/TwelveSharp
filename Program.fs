@@ -41,4 +41,4 @@ let main =
     0 // return an integer exit code
   | _ ->
     eprintfn "usage : <n> <heads> <from>"
-    1
+    1 
