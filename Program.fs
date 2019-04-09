@@ -29,6 +29,22 @@ let isSorted x =
   |> Seq.pairwise
   |> Seq.choose (fun (x,y) -> if x > y then Some (x,y) else None)
 
+let persistence x =
+  let mutable v = System.Numerics.BigInteger.Parse(x)
+  let mutable rem = System.Numerics.BigInteger.One
+  let zero = System.Numerics.BigInteger.Zero
+  let ten  = System.Numerics.BigInteger(10)
+  let mutable p = 0
+  while v >= ten do
+    let mutable t = System.Numerics.BigInteger.One
+    while v > zero && t > zero do
+      v <- System.Numerics.BigInteger.DivRem(v,ten, &rem)
+      t <- t * rem
+    v <- t
+    p <- p + 1
+    //eprintfn "v: %A; t: %A; rem: %A" v t rem
+  p
+
 [<EntryPoint>]
 let main =
   function
@@ -39,6 +55,11 @@ let main =
     let tst = isSorted t |> Array.ofSeq
     if tst.Length = 0 then printfn "it is sorted." else printfn "Counter examples: %A" tst
     0 // return an integer exit code
+  | [|"test"; n; heads; from|] ->
+    let t = rseq (System.Int32.Parse(n)) heads from
+    let max = t |> Seq.maxBy persistence
+    printfn "max persistence is %s of %i" max (persistence max)
+    0
   | _ ->
     eprintfn "usage : <n> <heads> <from>"
     1 
