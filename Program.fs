@@ -30,7 +30,7 @@ let isSorted x =
   |> Seq.choose (fun (x,y) -> if x > y then Some (x,y) else None)
 
 let persistence x =
-  let mutable v = System.Numerics.BigInteger.Parse(x)
+  let mutable v = x
   let mutable rem = System.Numerics.BigInteger.One
   let zero = System.Numerics.BigInteger.Zero
   let ten  = System.Numerics.BigInteger(10)
@@ -44,6 +44,7 @@ let persistence x =
     p <- p + 1
     //eprintfn "v: %A; t: %A; rem: %A" v t rem
   p
+let inline persistenceStr x = System.Numerics.BigInteger.Parse(x) |> persistence
 
 let fastseq n =
   seq{
@@ -58,6 +59,22 @@ let fastseq n =
             let t = a.Substring(a') + b.Substring(b') + c.Substring(c') + d.Substring(d')
             if t <> "" then yield t
   }
+
+let fasterseq n =
+  let inline pow x y = System.Numerics.BigInteger.Pow(x,y)
+  seq{
+    let a = System.Numerics.BigInteger(2)
+    let b = System.Numerics.BigInteger(3)
+    let c = System.Numerics.BigInteger(5)
+    let d = System.Numerics.BigInteger(7)
+    for a' = 0 to n do
+      for b' = 0 to n do
+        for c' = 0 to n do
+          for d' = 0 to n do
+            yield (pow d a') * (pow c b') * (pow b c') * (pow a d')
+            
+  }
+
 
 [<EntryPoint>]
 let main =
@@ -77,7 +94,7 @@ let main =
     let n = (System.Int32.Parse(n))
     printfn "n is %i" n
     let t = rseq n heads from
-    let max = t |> Seq.countBy persistence |> Seq.sortBy fst |> Array.ofSeq
+    let max = t |> Seq.countBy persistenceStr |> Seq.sortBy fst |> Array.ofSeq
     s.Stop()
     printfn "test the persistence spectriume is %s; time %ims" (max |> Seq.map (sprintf "%A") |> String.concat "; ")  s.ElapsedMilliseconds
     0
@@ -87,9 +104,19 @@ let main =
     let n = (System.Int32.Parse(n))
     printfn "n is %i" n
     let t = fastseq n
-    let max = t |> Seq.countBy persistence |> Seq.sortBy fst |> Array.ofSeq
+    let max = t |> Seq.countBy persistenceStr |> Seq.sortBy fst |> Array.ofSeq
     s.Stop()
     printfn "ftest the persistence spectriume is %s; time %ims" (max |> Seq.map (sprintf "%A") |> String.concat "; ")  s.ElapsedMilliseconds
+    0
+  | [|"ntest"; n|] ->
+    let s = new System.Diagnostics.Stopwatch()
+    do s.Start()
+    let n = (System.Int32.Parse(n))
+    printfn "n is %i" n
+    let t = fasterseq n
+    let max = t |> Seq.countBy persistence |> Seq.sortBy fst |> Array.ofSeq
+    s.Stop()
+    printfn "ntest the persistence spectriume is %s; time %ims" (max |> Seq.map (sprintf "%A") |> String.concat "; ")  s.ElapsedMilliseconds
     0
   | _ ->
     eprintfn "usage : <n> <heads> <from>"
