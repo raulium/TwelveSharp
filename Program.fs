@@ -75,6 +75,34 @@ let fasterseq n =
             
   }
 
+let fastersseq n =
+  let inline pow x y = System.Numerics.BigInteger.Pow(x,y)
+  let inline initialize n v  =
+    seq{
+      let mutable result = System.Numerics.BigInteger.One
+      yield result
+      for i = 1 to n do
+        result <- result * v
+        yield result
+    } |> Array.ofSeq
+  seq{
+    let a = System.Numerics.BigInteger(6) |> initialize n
+    let b = System.Numerics.BigInteger(7) |> initialize n
+    let c = System.Numerics.BigInteger(8) |> initialize n
+    let d = System.Numerics.BigInteger(9) |> initialize n
+    let two = System.Numerics.BigInteger(2)
+    let three = System.Numerics.BigInteger(3)
+    for a' in a do
+      for b' in b do
+        for c' in c do
+          for d' in d do
+            let ba =  a' * b' * c' * d'
+            yield ba
+            yield ba * two
+            yield ba * three
+            
+  }
+
 
 [<EntryPoint>]
 let main =
@@ -118,6 +146,16 @@ let main =
     s.Stop()
     printfn "ntest the persistence spectriume is %s; time %ims" (max |> Seq.map (sprintf "%A") |> String.concat "; ")  s.ElapsedMilliseconds
     0
+  | [|"nrtest"; n|] ->
+    let s = new System.Diagnostics.Stopwatch()
+    do s.Start()
+    let n = (System.Int32.Parse(n))
+    printfn "n is %i" n
+    let t = fastersseq n
+    let max = t |> Seq.countBy persistence |> Seq.sortBy fst |> Array.ofSeq
+    s.Stop()
+    printfn "ntest the persistence spectriume is %s; time %ims" (max |> Seq.map (sprintf "%A") |> String.concat "; ")  s.ElapsedMilliseconds
+    0
   | _ ->
-    eprintfn "usage : <n> <heads> <from>"
+    eprintfn "usage : \n\ttest <n>\n\tftest <n>\n\tntest <n>\n\tnrtest <n>"
     1 
