@@ -94,12 +94,14 @@ let fastersseq n =
     let three = System.Numerics.BigInteger(3)
     for a' in a do
       for b' in b do
+        let ab = a' * b'
         for c' in c do
+          let abc = ab * c'
           for d' in d do
-            let ba =  a' * b' * c' * d'
-            yield ba
-            yield ba * two
-            yield ba * three
+            let abcd =  abc * d'
+            yield abcd
+            yield abcd * two
+            yield abcd * three
             
   }
 

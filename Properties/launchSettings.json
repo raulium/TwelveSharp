@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "combos": {
+      "commandName": "Project",
+      "commandLineArgs": "ntest 100"
+    }
+  }
+}
