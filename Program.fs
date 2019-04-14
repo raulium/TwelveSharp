@@ -76,28 +76,23 @@ let fasterseq n =
   }
 
 let fastersseq n =
-  let inline pow x y = System.Numerics.BigInteger.Pow(x,y)
   let inline initialize n v  =
     seq{
       let mutable result = System.Numerics.BigInteger.One
       yield result
-      for i = 1 to n do
+      for _i = 1 to n do
         result <- result * v
         yield result
-    } |> Array.ofSeq
+    } 
   seq{
-    let a = System.Numerics.BigInteger(6) |> initialize n
-    let b = System.Numerics.BigInteger(7) |> initialize n
-    let c = System.Numerics.BigInteger(8) |> initialize n
-    let d = System.Numerics.BigInteger(9) |> initialize n
     let two = System.Numerics.BigInteger(2)
     let three = System.Numerics.BigInteger(3)
-    for a' in a do
-      for b' in b do
+    for a' in System.Numerics.BigInteger(6) |> initialize n do
+      for b' in System.Numerics.BigInteger(7) |> initialize n do
         let ab = a' * b'
-        for c' in c do
+        for c' in System.Numerics.BigInteger(8) |> initialize n do
           let abc = ab * c'
-          for d' in d do
+          for d' in System.Numerics.BigInteger(9) |> initialize n do
             let abcd =  abc * d'
             yield abcd
             yield abcd * two
