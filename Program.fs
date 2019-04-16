@@ -100,18 +100,85 @@ let fastersseq n =
             
   }
 
+let inline closureseq n callback =
+  let inline initialize n v  =
+      seq{
+        let mutable result = System.Numerics.BigInteger.One
+        yield result
+        for _i = 1 to n do
+          result <- result * v
+          yield result
+      } |> Array.ofSeq
+  
+  ()
+  |>
+  fun () ->
+    let two = System.Numerics.BigInteger(2)
+    let three = System.Numerics.BigInteger(3)
+    for a' in System.Numerics.BigInteger(6) |> initialize n do
+    for b' in System.Numerics.BigInteger(7) |> initialize n do
+      let ab = a' * b'
+      for c' in System.Numerics.BigInteger(8) |> initialize n do
+      let abc = ab * c'
+      for d' in System.Numerics.BigInteger(9) |> initialize n do
+        let abcd =  abc * d'
+        callback <| abcd
+        callback <|abcd * two
+        callback <| abcd * three
+
+let inline closureexactly n callback =
+  let inline initialize n v  =
+      seq{
+        let mutable result = System.Numerics.BigInteger.One
+        yield result
+        for _i = 1 to n do
+          result <- result * v
+          yield result
+      } |> Array.ofSeq
+  
+  
+  let two = System.Numerics.BigInteger(2)
+  let three = System.Numerics.BigInteger(3)
+  let av = System.Numerics.BigInteger(6) |> initialize n
+  let bv = System.Numerics.BigInteger(7) |> initialize n
+  let cv = System.Numerics.BigInteger(8) |> initialize n
+  let dv = System.Numerics.BigInteger(9) |> initialize n
+  for ai = 0 to n do
+    for bi = 0 to n - ai do
+      let ab = av.[ai] * bv.[bi]
+      for ci = 0 to n - (ai + bi) do
+        let abc = ab * cv.[ci]
+        let di =  n - (ai + bi + ci) 
+        let abcd =  abc * dv.[di]
+        callback <| abcd
+        callback <|abcd * two
+        callback <| abcd * three
+
+let testAt n = 
+  let s = new System.Diagnostics.Stopwatch()
+  do s.Start()
+  let results = Array.init 256 (fun _ -> 0UL)
+  let inline go x = let p = persistence x in results.[p] <- results.[p] + 1UL
+  do closureexactly n go
+  let max = results |> Array.mapi (fun i j -> i,j) |> Array.filter (fun (i,j) -> j > 0UL)
+  s.Stop()
+  sprintf "n=%i the persistence spectriume is %s; time %ims" n (max |> Seq.map (sprintf "%A") |> String.concat "; ")  s.ElapsedMilliseconds
+  
+
+
+let isInt (x: string) = let s,_ = System.Int32.TryParse(x) in s
 
 [<EntryPoint>]
 let main =
   function
-  | [|n; heads; from|] ->
+  | [|n; heads; from|] when isInt n  ->
     let t = rseq (System.Int32.Parse(n)) heads from
     t |> Seq.iter (printf "%s; ")
     Seq.length t |> printfn "\nlength : %i" 
     let tst = isSorted t |> Array.ofSeq
     if tst.Length = 0 then printfn "it is sorted." else printfn "Counter examples: %A" tst
     0 // return an integer exit code
-  | [|"test"; n;|] -> // heads; from|] ->
+  | [|"test"; n;|] when isInt n -> // heads; from|] ->
     let heads = "23"
     let from  = "6789"
     let s = new System.Diagnostics.Stopwatch()
@@ -123,7 +190,7 @@ let main =
     s.Stop()
     printfn "test the persistence spectriume is %s; time %ims" (max |> Seq.map (sprintf "%A") |> String.concat "; ")  s.ElapsedMilliseconds
     0
-  | [|"ftest"; n|] ->
+  | [|"ftest"; n|] when isInt n ->
     let s = new System.Diagnostics.Stopwatch()
     do s.Start()
     let n = (System.Int32.Parse(n))
@@ -133,7 +200,7 @@ let main =
     s.Stop()
     printfn "ftest the persistence spectriume is %s; time %ims" (max |> Seq.map (sprintf "%A") |> String.concat "; ")  s.ElapsedMilliseconds
     0
-  | [|"ntest"; n|] ->
+  | [|"ntest"; n|] when isInt n ->
     let s = new System.Diagnostics.Stopwatch()
     do s.Start()
     let n = (System.Int32.Parse(n))
@@ -143,7 +210,7 @@ let main =
     s.Stop()
     printfn "ntest the persistence spectriume is %s; time %ims" (max |> Seq.map (sprintf "%A") |> String.concat "; ")  s.ElapsedMilliseconds
     0
-  | [|"nrtest"; n|] ->
+  | [|"nrtest"; n|] when isInt n ->
     let s = new System.Diagnostics.Stopwatch()
     do s.Start()
     let n = (System.Int32.Parse(n))
@@ -153,6 +220,30 @@ let main =
     s.Stop()
     printfn "ntest the persistence spectriume is %s; time %ims" (max |> Seq.map (sprintf "%A") |> String.concat "; ")  s.ElapsedMilliseconds
     0
+  | [|"cbtest"; n|] when isInt n ->
+    let s = new System.Diagnostics.Stopwatch()
+    do s.Start()
+    let n = (System.Int32.Parse(n))
+    printfn "n is %i" n
+    let results = Array.init 256 (fun _ -> 0UL)
+    let inline go x = let p = persistence x in results.[p] <- results.[p] + 1UL
+    do closureseq n go
+    let max = results |> Array.mapi (fun i j -> i,j) |> Array.filter (fun (i,j) -> j > 0UL)
+    s.Stop()
+    printfn "ntest the persistence spectriume is %s; time %ims" (max |> Seq.map (sprintf "%A") |> String.concat "; ")  s.ElapsedMilliseconds
+    0
+  | [|"cetest"; n|] when isInt n ->
+    let n = (System.Int32.Parse(n))
+    testAt n |> System.Console.WriteLine
+    0
+  | [|"ptest"; n; m|] when (isInt n) && (isInt m) ->
+    let n = System.Int32.Parse(n)
+    let m = System.Int32.Parse(m)
+    let v = Array.init (m-n) (fun i -> n + i)
+    v
+    |> Array.Parallel.map testAt
+    |> Array.iter (printfn "%s")
+    0
   | _ ->
-    eprintfn "usage : \n\ttest <n>\n\tftest <n>\n\tntest <n>\n\tnrtest <n>"
+    eprintfn "usage : \n\ttest <n>\n\tftest <n>\n\tntest <n>\n\tnrtest <n>\n\tcbtest <n>\n\tcetest <n>\n\tptest <n> <m>"
     1 
